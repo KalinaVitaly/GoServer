@@ -1,2 +1,5 @@
 bind_addr = ":8080"
 log_level = "info"
+
+[store]
+database_url = "root:1489@/userdatabase"
