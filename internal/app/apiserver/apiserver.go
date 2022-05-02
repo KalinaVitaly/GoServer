@@ -1,6 +1,7 @@
 package apiserver
 
 import (
+	"Diplom/internal/app/store"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"io"
@@ -11,6 +12,7 @@ type APIServer struct {
 	config *Config
 	logger *logrus.Logger
 	router *mux.Router
+	store  *store.Store
 }
 
 func New(config *Config) *APIServer {
@@ -27,9 +29,23 @@ func (s *APIServer) Start() error {
 	}
 
 	s.configureRouter()
+
+	if err := s.configureStore(); err != nil {
+		return err
+	}
+
 	s.logger.Info("Starting api server ... ")
 
 	return http.ListenAndServe(s.config.BindAddr, s.router)
+}
+
+func (s *APIServer) configureStore() error {
+	st := s.store.New(s.config.Store)
+	if err := st.Open(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *APIServer) configureLogger() error {
