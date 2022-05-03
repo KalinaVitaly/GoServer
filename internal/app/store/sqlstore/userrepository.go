@@ -1,21 +1,23 @@
-package store
+package sqlstore
 
-import "Diplom/internal/app/model"
+import (
+	"Diplom/internal/app/model"
+)
 
 type UserRepository struct {
 	store *Store
 }
 
-func (r *UserRepository) Create(u *model.User) (*model.User, error) {
+func (r *UserRepository) Create(u *model.User) error {
 	if err := u.Validate(); err != nil {
-		return nil, err
+		return err
 	}
 
 	if err := u.BeforeCreate(); err != nil {
-		return nil, err
+		return err
 	}
 	//r.store.db.QueryRow()
-	return nil, nil
+	return nil
 }
 
 func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
