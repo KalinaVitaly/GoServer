@@ -1,3 +1,3 @@
 bind_addr = ":8080"
 log_level = "info"
-database_url = "root:1489@/userdatabase"
+database_url = "root:1489@/user_content_db"
