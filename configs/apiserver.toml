@@ -1,3 +1,5 @@
 bind_addr = ":8080"
 log_level = "info"
 database_url = "root:1489@/user_content_db"
+directories_count = 24
+dir_file_content = "content/"
