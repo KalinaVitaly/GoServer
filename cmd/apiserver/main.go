@@ -35,6 +35,10 @@ func main() {
 
 	fmt.Println("Config read : ", config, configFileSystem)
 
+	if err := apifilesystem.StartFileSystem(configFileSystem); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := apiserver.Start(config); err != nil {
 		log.Fatal(err)
 	}

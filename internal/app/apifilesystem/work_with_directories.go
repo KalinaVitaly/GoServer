@@ -1,6 +1,9 @@
 package apifilesystem
 
 import (
+	"Diplom/internal/app/store"
+	"github.com/sirupsen/logrus"
+	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -39,4 +42,49 @@ func createDirInFileSystem(filePath, dirName string) error {
 	}
 
 	return err
+}
+
+func SaveFileInDirectory(data []byte) error {
+	file, err := os.Create(NewConfigDirecories().ContentFilePath)
+	defer file.Close()
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+
+	writeFileLength, isOk := file.Write(data)
+
+	if isOk != nil || writeFileLength != len(data) {
+		log.Fatal("Error: write file failed!")
+		return store.ErrWriteFile
+	}
+	return nil
+}
+
+func ReadFile(fileQuery string) ([]byte, error) {
+	if !isFileExists(fileQuery) {
+		return nil, store.ErrFoundFile
+	}
+
+	data, err := ioutil.ReadFile(fileQuery)
+	if err != nil {
+		log.Fatal(err)
+		return nil, store.ErrReadFile
+	}
+
+	return data, nil
+}
+
+func isFileExists(filePath string) bool {
+	fileInfo, err := os.Stat(filePath)
+	if os.IsNotExist(err) {
+		logrus.Error("File not exist!")
+		return false
+	}
+
+	if fileInfo.IsDir() {
+		return false
+	}
+
+	return true
 }
