@@ -4,14 +4,9 @@ import (
 	"Diplom/internal/app/model"
 	"Diplom/internal/app/store"
 	"encoding/json"
-	"errors"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"net/http"
-)
-
-var (
-	errIncorrectEmailOrPassword = errors.New("incorrect error or password")
 )
 
 type server struct {
@@ -77,7 +72,7 @@ func (s *server) handleSessionsCreate() http.HandlerFunc {
 
 		u, err := s.store.User().FindByEmail(req.Email)
 		if err != nil || !u.ComparePassword(req.Password) {
-			s.error(w, r, http.StatusUnauthorized, errIncorrectEmailOrPassword)
+			s.error(w, r, http.StatusUnauthorized, store.ErrIncorrectEmailOrPassword)
 			return
 		}
 		s.respond(w, r, http.StatusOK, nil)

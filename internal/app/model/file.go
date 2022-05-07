@@ -8,11 +8,12 @@ type File struct {
 	FileQuery string `json:"file-query"`
 }
 
-func (file *File) CreateFilePath() error {
+func (file *File) setFilePath() error {
 
 	return nil
 }
 
 func (file *File) setFileQuery(filePath string) (string, error) {
-	
+
+	return "", nil
 }
