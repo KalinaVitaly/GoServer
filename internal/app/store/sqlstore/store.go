@@ -9,6 +9,7 @@ import (
 type Store struct {
 	db             *sql.DB
 	userRepository *UserRepository
+	fileRepository *FileRepository
 }
 
 func New(db *sql.DB) *Store {
