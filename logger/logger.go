@@ -7,16 +7,17 @@ import (
 )
 
 var (
-	Once         sync.Once
+	once         sync.Once
+	loggerLevel  string
 	globalLogger *logrus.Logger
 )
 
-type Logger struct {
-	LogLevel string `toml:"log_level"`
+func SetLoggerLevel(level string) {
+	loggerLevel = level
 }
 
 func LogInstance() *logrus.Logger {
-	Once.Do(func() {
+	once.Do(func() {
 		globalLogger = logrus.New()
 		fmt.Println("Create Global logger")
 	})

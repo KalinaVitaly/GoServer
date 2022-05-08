@@ -2,7 +2,6 @@ package apifilesystem
 
 import (
 	"Diplom/internal/app/store"
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"log"
 	"os"
@@ -62,7 +61,7 @@ func SaveFileInDirectory(data []byte) error {
 }
 
 func ReadFile(fileQuery string) ([]byte, error) {
-	if !isFileExists(fileQuery) {
+	if !IsFileExists(fileQuery) {
 		return nil, store.ErrFoundFile
 	}
 
@@ -75,16 +74,10 @@ func ReadFile(fileQuery string) ([]byte, error) {
 	return data, nil
 }
 
-func isFileExists(filePath string) bool {
+func IsFileExists(filePath string) bool {
 	fileInfo, err := os.Stat(filePath)
-	if os.IsNotExist(err) {
-		logrus.Error("File not exist!")
+	if os.IsNotExist(err) || fileInfo.IsDir() {
 		return false
 	}
-
-	if fileInfo.IsDir() {
-		return false
-	}
-
-	return true
+	return false
 }
