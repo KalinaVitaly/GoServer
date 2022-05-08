@@ -34,3 +34,38 @@ func TestIsFileExists(t *testing.T) {
 		})
 	}
 }
+
+func TestCreateDirectoriesInFileSystem(t *testing.T) {
+	testCases := []struct {
+		name     string
+		filePath string
+		fileName string
+		wanted   error
+	}{
+		{
+			name:     "create file in content folder",
+			filePath: "C:\\Users\\Kalina\\Desktop\\Diplom\\content\\",
+			fileName: "data_new_content",
+			wanted:   nil,
+		},
+		{
+			name:     "create mp4 file in content folder",
+			filePath: "C:\\Users\\Kalina\\Desktop\\Diplom\\content\\",
+			fileName: "data.mp4",
+			wanted:   nil,
+		},
+		{
+			name:     "create png file in content folder",
+			filePath: "C:\\Users\\Kalina\\Desktop\\Diplom\\content\\",
+			fileName: "data_folder",
+			wanted:   nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+
+			assert.Equal(t, tc.wanted, CreateDirInFileSystem(tc.filePath, tc.fileName))
+		})
+	}
+}

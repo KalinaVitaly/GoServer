@@ -22,7 +22,7 @@ func CreateDirectoriesInFileSystem(config *ConfigDirectories) error {
 			dirPath += currentData + "/"
 		}
 
-		errorDirCreate := createDirInFileSystem(dirPath, dirName)
+		errorDirCreate := CreateDirInFileSystem(dirPath, dirName)
 
 		if errorDirCreate != nil {
 			log.Fatal("Error: create dir failed!")
@@ -33,14 +33,13 @@ func CreateDirectoriesInFileSystem(config *ConfigDirectories) error {
 	return nil
 }
 
-func createDirInFileSystem(filePath, dirName string) error {
+func CreateDirInFileSystem(filePath, dirName string) error {
 	err := os.Mkdir(filePath+dirName, 444)
 	if err != nil {
-		log.Fatal("Create dir error")
 		return err
 	}
 
-	return err
+	return nil
 }
 
 func SaveFileInDirectory(data []byte) error {
