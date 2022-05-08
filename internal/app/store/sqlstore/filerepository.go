@@ -9,6 +9,19 @@ type FileRepository struct {
 	store *Store
 }
 
+func (r *FileRepository) GetFilePath(fileQuery string) (string, error) {
+	var filePath string
+	row := r.store.db.QueryRow("SELECT file_path FROM user_content_db.files WHERE file_query = ?)", fileQuery)
+
+	err := row.Scan(&filePath)
+
+	if err != nil {
+		return "", err
+	}
+
+	return filePath, nil
+}
+
 func (r *FileRepository) Create(u *model.File, ownerID int) error {
 	result, err := r.store.db.Exec(
 		"INSERT INTO user_content_db.files (file_owner, file_path, file_name, file_query) VALUES (?, ?, ?, ?) ",

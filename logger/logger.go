@@ -1,7 +1,25 @@
 package logger
 
-import "github.com/sirupsen/logrus"
+import (
+	"fmt"
+	"github.com/sirupsen/logrus"
+	"sync"
+)
+
+var (
+	Once         sync.Once
+	globalLogger *logrus.Logger
+)
 
 type Logger struct {
-	logger *logrus.Logger
+	LogLevel string `toml:"log_level"`
+}
+
+func LogInstance() *logrus.Logger {
+	Once.Do(func() {
+		globalLogger = logrus.New()
+		fmt.Println("Create Global logger")
+	})
+
+	return globalLogger
 }

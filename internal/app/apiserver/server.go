@@ -5,20 +5,17 @@ import (
 	"Diplom/internal/app/store"
 	"encoding/json"
 	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
 type server struct {
 	router *mux.Router
-	logger *logrus.Logger
 	store  store.Store
 }
 
 func newServer(store store.Store) *server {
 	s := &server{
 		router: mux.NewRouter(),
-		logger: logrus.New(),
 		store:  store,
 	}
 
