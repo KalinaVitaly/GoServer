@@ -18,4 +18,5 @@ type FileRepository interface {
 	GetFilePath(string) (string, error)
 	Delete(string, int) error
 	UpdateAvailableFile(string, bool) error
+	FindByQuery(fileQuery string) (*model.File, error)
 }

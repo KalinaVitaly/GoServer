@@ -38,11 +38,54 @@ func (s *server) configureRouter() {
 	s.router.HandleFunc("/delete_group", s.handleDeleteGroup()).Methods("POST")
 	s.router.HandleFunc("/create_file", s.handleCreateFile()).Methods("POST")
 	s.router.HandleFunc("/delete_file", s.handleDeleteFile()).Methods("POST")
+	s.router.HandleFunc("/get_file", s.handleGetFile()).Methods("GET")
+}
+
+func (s *server) handleGetFile() http.HandlerFunc {
+	type request struct {
+		UserID    int    `json:"user_id"`
+		FileQuery string `json:"file_query"`
+	}
+
+	type response struct {
+		ID        int
+		FileQuery string
+		FileName  string
+		FileData  []byte
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		fileModel, err := s.store.File().FindByQuery(req.FileQuery)
+
+		if err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+		}
+
+		data, err := apifilesystem.ReadFile(fileModel.FilePath)
+
+		if err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+		}
+
+		responseUser := &response{
+			FileData:  data,
+			FileQuery: req.FileQuery,
+			ID:        req.UserID,
+			FileName:  fileModel.FileName,
+		}
+		s.respond(w, r, http.StatusOK, responseUser)
+	}
 }
 
 func (s *server) handleDeleteFile() http.HandlerFunc {
 	type request struct {
-		UserID    int    `user_id`
+		UserID    int    `json:"user_id"`
 		FileQuery string `json:"file_query"`
 	}
 

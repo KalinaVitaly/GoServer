@@ -3,6 +3,7 @@ package sqlstore
 import (
 	"Diplom/internal/app/model"
 	"Diplom/internal/app/store"
+	"database/sql"
 )
 
 type FileRepository struct {
@@ -24,7 +25,13 @@ func (r *FileRepository) GetFilePath(fileQuery string) (string, error) {
 
 func (r *FileRepository) Create(u *model.File) error {
 	result, err := r.store.db.Exec(
-		"INSERT INTO user_content_db.files (file_owner, file_path, file_name, file_query, file_available) VALUES (?, ?, ?, ?, ?) ",
+		"INSERT INTO user_content_db.files ("+
+			"file_owner, "+
+			"file_path, "+
+			"file_name, "+
+			"file_query, "+
+			"file_available) "+
+			"VALUES (?, ?, ?, ?, ?) ",
 		u.FileOwner,
 		u.FilePath,
 		u.FileName,
@@ -83,20 +90,20 @@ func (r *FileRepository) Delete(fileQuery string, userID int) error {
 	return nil
 }
 
-//func (r *FileRepository) FindByEmail(email string) (*model.User, error) {
-//	u := &model.User{}
-//
-//	if err := r.store.db.QueryRow(
-//		"SELECT id, email, encrypted_password "+
-//			"FROM user_content_db.users "+
-//			"WHERE email = ?", email).Scan(&u.ID, &u.Email, &u.Password); err != nil {
-//
-//		if err == sql.ErrNoRows {
-//			return nil, store.ErrRecordNotFound
-//		}
-//
-//		return nil, err
-//	}
-//
-//	return u, nil
-//}
+func (r *FileRepository) FindByQuery(fileQuery string) (*model.File, error) {
+	u := &model.File{}
+
+	if err := r.store.db.QueryRow(
+		"SELECT id, file_name, file_path, file_owner, file_available"+
+			"FROM user_content_db.files "+
+			"WHERE file_query = ?", fileQuery).Scan(&u.ID, &u.FileName, &u.FilePath, &u.FileOwner, &u.FileAvailable); err != nil {
+
+		if err == sql.ErrNoRows {
+			return nil, store.ErrRecordNotFound
+		}
+
+		return nil, err
+	}
+
+	return u, nil
+}
