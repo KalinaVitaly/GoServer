@@ -31,6 +31,35 @@ func (s *server) serverHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *server) configureRouter() {
 	s.router.HandleFunc("/create_users", s.handleUsersCreate()).Methods("POST")
 	s.router.HandleFunc("/sessions", s.handleSessionsCreate()).Methods("POST")
+	s.router.HandleFunc("/create_group", s.handleCreateGroup()).Methods("POST")
+}
+
+func (s *server) handleCreateGroup() http.HandlerFunc {
+	type request struct {
+		//ID         int    `json:"id"`
+		GroupOwner int    `json:"group_owner"`
+		GroupName  string `json:"group_name"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		gr := &model.Group{
+			GroupOwner: req.GroupOwner,
+			GroupName:  req.GroupName,
+		}
+
+		if err := s.store.Group().Create(gr); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		s.respond(w, r, http.StatusCreated, gr)
+	}
 }
 
 func (s *server) handleUsersCreate() http.HandlerFunc {
@@ -49,6 +78,12 @@ func (s *server) handleUsersCreate() http.HandlerFunc {
 			Email:    req.Email,
 			Password: req.Password,
 		}
+
+		if err := s.store.User().Create(u); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
 		u.Sanitize()
 		s.respond(w, r, http.StatusCreated, u)
 	}

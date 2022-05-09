@@ -4,7 +4,6 @@ import (
 	"Diplom/internal/app/model"
 	"Diplom/internal/app/store"
 	"database/sql"
-	"fmt"
 )
 
 type UserRepository struct {
@@ -12,29 +11,27 @@ type UserRepository struct {
 }
 
 func (r *UserRepository) Create(u *model.User) error {
-	fmt.Println("Create user", *u)
 	if err := u.Validate(); err != nil {
 		return err
 	}
-	fmt.Println("Correct validate")
+
 	if err := u.BeforeCreate(); err != nil {
 		return err
 	}
-	fmt.Println("Correct before create")
+
 	result, err := r.store.db.Exec(
 		"INSERT INTO user_content_db.users (email, encrypted_password) VALUES (?, ?) ",
 		u.Email,
 		u.EncryptionPassword,
 	)
-	fmt.Println("Correct insert", err, len(u.EncryptionPassword))
+
 	id, err := result.LastInsertId()
 
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
-	fmt.Println("Correct get new id", id)
+
 	u.ID = int(id)
-	fmt.Println("Correct value ")
 	return err
 }
 
