@@ -39,6 +39,35 @@ func (s *server) configureRouter() {
 	s.router.HandleFunc("/create_file", s.handleCreateFile()).Methods("POST")
 	s.router.HandleFunc("/delete_file", s.handleDeleteFile()).Methods("POST")
 	s.router.HandleFunc("/get_file", s.handleGetFile()).Methods("GET")
+	s.router.HandleFunc("/add_user_in_group", s.handleAddUserInGroup()).Methods("POST")
+}
+
+func (s *server) handleAddUserInGroup() http.HandlerFunc {
+	type request struct {
+		UserID    int    `json:"user_id"`
+		GroupName string `json:"group_name"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		groupModel, err := s.store.Group().FindGroupByName(req.GroupName)
+
+		if err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		if err := s.store.UserInGroup().AddUserInGroup(req.UserID, groupModel.ID); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+		}
+
+		s.respond(w, r, http.StatusOK, nil)
+	}
 }
 
 func (s *server) handleGetFile() http.HandlerFunc {

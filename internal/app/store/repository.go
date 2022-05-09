@@ -11,6 +11,7 @@ type UserRepository interface {
 type GroupRepository interface {
 	Create(u *model.Group) error
 	Delete(int, string) error
+	FindGroupByName(string) (*model.Group, error)
 }
 
 type FileRepository interface {
@@ -19,4 +20,10 @@ type FileRepository interface {
 	Delete(string, int) error
 	UpdateAvailableFile(string, bool) error
 	FindByQuery(fileQuery string) (*model.File, error)
+}
+
+type UserGroupRepository interface {
+	AddUserInGroup(int, int) error
+	DeleteUserFromGroup(int, int) error
+	FindGroupByName(string) (*model.Group, error)
 }

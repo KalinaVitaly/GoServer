@@ -50,3 +50,16 @@ func (r *GroupRepository) Delete(userID int, groupName string) error {
 
 	return nil
 }
+
+func (r *GroupRepository) FindGroupByName(groupName string) (*model.Group, error) {
+	var groupModel *model.Group
+	row := r.store.db.QueryRow(
+		"SELECT ID, group_name, group_owner FROM user_content_db.group WHERE group_name = ?)",
+		groupName)
+
+	if err := row.Scan(&groupModel.ID, &groupModel.GroupName, &groupModel.GroupOwner); err != nil {
+		return nil, err
+	}
+
+	return groupModel, nil
+}
