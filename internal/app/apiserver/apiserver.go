@@ -8,7 +8,7 @@ import (
 )
 
 func Start(config *Config) error {
-	db, err := newDB(config.DatabaseURL)
+	db, err := NewDB(config.DatabaseURL)
 	if err != nil {
 		return err
 	}
@@ -19,7 +19,7 @@ func Start(config *Config) error {
 	return http.ListenAndServe(config.BindAddr, srv.router)
 }
 
-func newDB(databaseURL string) (*sql.DB, error) {
+func NewDB(databaseURL string) (*sql.DB, error) {
 	fmt.Println("In new db", databaseURL)
 	db, err := sql.Open("mysql", databaseURL)
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 	"Diplom/internal/app/store"
 )
 
+// Store ...
 type Store struct {
 	userRepository *UserRepository
 }
