@@ -2,6 +2,7 @@ package sqlstore
 
 import (
 	"Diplom/internal/app/model"
+	"Diplom/internal/app/store"
 )
 
 type GroupRepository struct {
@@ -35,4 +36,17 @@ func (r *GroupRepository) isOwnerGroup(userID int, groupName string) (bool, erro
 	return ownerExist, nil
 }
 
-//func (r *GroupRepository) Delete()
+func (r *GroupRepository) Delete(userID int, groupName string) error {
+	if result, err := r.isOwnerGroup(userID, groupName); err != nil || result == false {
+		return store.ErrAccessRights
+	}
+
+	if _, err := r.store.db.Exec(
+		"DELETE FROM user_content_db.group WHERE group_name = ?; ",
+		groupName,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
