@@ -7,9 +7,10 @@ import (
 )
 
 type Store struct {
-	db             *sql.DB
-	userRepository *UserRepository
-	fileRepository *FileRepository
+	db              *sql.DB
+	userRepository  *UserRepository
+	fileRepository  *FileRepository
+	groupRepository *GroupRepository
 }
 
 func New(db *sql.DB) *Store {
@@ -27,4 +28,26 @@ func (s *Store) User() store.UserRepository {
 		store: s,
 	}
 	return s.userRepository
+}
+
+func (s *Store) Group() store.GroupRepository {
+	if s.userRepository != nil {
+		return s.groupRepository
+	}
+
+	s.groupRepository = &GroupRepository{
+		store: s,
+	}
+	return s.groupRepository
+}
+
+func (s *Store) File() store.FileRepository {
+	if s.fileRepository != nil {
+		return s.fileRepository
+	}
+
+	s.fileRepository = &FileRepository{
+		store: s,
+	}
+	return s.fileRepository
 }

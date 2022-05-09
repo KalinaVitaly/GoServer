@@ -22,7 +22,7 @@ func (r *FileRepository) GetFilePath(fileQuery string) (string, error) {
 	return filePath, nil
 }
 
-func (r *FileRepository) Create(u *model.File, ownerID int) error {
+func (r *FileRepository) Create(u *model.File) error {
 	result, err := r.store.db.Exec(
 		"INSERT INTO user_content_db.files (file_owner, file_path, file_name, file_query) VALUES (?, ?, ?, ?) ",
 		u.FileOwner,

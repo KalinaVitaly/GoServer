@@ -1,13 +1,14 @@
 package apiserver
 
 import (
+	"Diplom/internal/app/apifilesystem"
 	"Diplom/internal/app/store/sqlstore"
 	"database/sql"
 	"fmt"
 	"net/http"
 )
 
-func Start(config *Config) error {
+func Start(config *Config, configFileSystem *apifilesystem.ConfigDirectories) error {
 	db, err := NewDB(config.DatabaseURL)
 	if err != nil {
 		return err

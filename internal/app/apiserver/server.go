@@ -1,6 +1,7 @@
 package apiserver
 
 import (
+	"Diplom/internal/app/apifilesystem"
 	"Diplom/internal/app/model"
 	"Diplom/internal/app/store"
 	"encoding/json"
@@ -9,14 +10,16 @@ import (
 )
 
 type server struct {
-	router *mux.Router
-	store  store.Store
+	router           *mux.Router
+	store            store.Store
+	fileSystemConfig *apifilesystem.ConfigDirectories
 }
 
-func newServer(store store.Store) *server {
+func newServer(store store.Store, configFileSystem *apifilesystem.ConfigDirectories) *server {
 	s := &server{
-		router: mux.NewRouter(),
-		store:  store,
+		router:           mux.NewRouter(),
+		store:            store,
+		fileSystemConfig: configFileSystem,
 	}
 
 	s.configureRouter()
@@ -33,6 +36,44 @@ func (s *server) configureRouter() {
 	s.router.HandleFunc("/sessions", s.handleSessionsCreate()).Methods("POST")
 	s.router.HandleFunc("/create_group", s.handleCreateGroup()).Methods("POST")
 	s.router.HandleFunc("/delete_group", s.handleDeleteGroup()).Methods("POST")
+	s.router.HandleFunc("create_file", s.handleCreateFile()).Methods("POST")
+}
+
+func (s *server) handleCreateFile() http.HandlerFunc {
+	type request struct {
+		UserID   int    `json:"user_id"`
+		FileName string `json:"file_name"`
+		FileData []byte `json:"file_data"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		currentDir := s.fileSystemConfig.CurrentDirectoryPath
+		if err := apifilesystem.SaveFileInDirectory(req.FileData); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		fileModel := &model.File{
+			FileOwner:     req.UserID,
+			FileName:      req.FileName,
+			FilePath:      currentDir,
+			FileQuery:     currentDir,
+			FileAvailable: true,
+		}
+
+		if err := s.store.File().Create(fileModel); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		s.respond(w, r, http.StatusOK, nil)
+	}
 }
 
 func (s *server) handleDeleteGroup() http.HandlerFunc {
