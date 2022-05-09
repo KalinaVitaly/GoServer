@@ -32,11 +32,33 @@ func (s *server) configureRouter() {
 	s.router.HandleFunc("/create_users", s.handleUsersCreate()).Methods("POST")
 	s.router.HandleFunc("/sessions", s.handleSessionsCreate()).Methods("POST")
 	s.router.HandleFunc("/create_group", s.handleCreateGroup()).Methods("POST")
+	s.router.HandleFunc("/delete_group", s.handleDeleteGroup()).Methods("POST")
+}
+
+func (s *server) handleDeleteGroup() http.HandlerFunc {
+	type request struct {
+		UserID    int    `json:"user_id"`
+		GroupName string `json:"group_name"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		if err := s.store.Group().Delete(req.UserID, req.GroupName); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		s.respond(w, r, http.StatusOK, nil)
+	}
 }
 
 func (s *server) handleCreateGroup() http.HandlerFunc {
 	type request struct {
-		//ID         int    `json:"id"`
 		GroupOwner int    `json:"group_owner"`
 		GroupName  string `json:"group_name"`
 	}
@@ -117,4 +139,8 @@ func (s *server) error(w http.ResponseWriter, r *http.Request, code int, err err
 
 func (s *server) respond(w http.ResponseWriter, r *http.Request, code int, data interface{}) {
 	w.WriteHeader(code)
+
+	if data != nil {
+		json.NewEncoder(w).Encode(data)
+	}
 }
