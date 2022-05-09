@@ -78,5 +78,5 @@ func IsFileExists(filePath string) bool {
 	if os.IsNotExist(err) || fileInfo.IsDir() {
 		return false
 	}
-	return false
+	return true
 }
