@@ -73,6 +73,18 @@ func ReadFile(fileQuery string) ([]byte, error) {
 	return data, nil
 }
 
+func DeleteFile(filePath string) error {
+	if isOk := IsFileExists(filePath); !isOk {
+		return store.ErrFoundFile
+	}
+
+	if err := os.Remove(filePath); err != nil {
+		return store.ErrFoundFile
+	}
+
+	return nil
+}
+
 func IsFileExists(filePath string) bool {
 	fileInfo, err := os.Stat(filePath)
 	if os.IsNotExist(err) || fileInfo.IsDir() {

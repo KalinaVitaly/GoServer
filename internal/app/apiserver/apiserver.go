@@ -15,7 +15,7 @@ func Start(config *Config, configFileSystem *apifilesystem.ConfigDirectories) er
 	}
 	defer db.Close()
 	store := sqlstore.New(db)
-	srv := newServer(store)
+	srv := newServer(store, configFileSystem)
 
 	return http.ListenAndServe(config.BindAddr, srv.router)
 }

@@ -16,5 +16,6 @@ type GroupRepository interface {
 type FileRepository interface {
 	Create(*model.File) error
 	GetFilePath(string) (string, error)
-	Delete(fileQuery string, userID int) error
+	Delete(string, int) error
+	UpdateAvailableFile(string, bool) error
 }

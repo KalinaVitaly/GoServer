@@ -24,14 +24,25 @@ func (r *FileRepository) GetFilePath(fileQuery string) (string, error) {
 
 func (r *FileRepository) Create(u *model.File) error {
 	result, err := r.store.db.Exec(
-		"INSERT INTO user_content_db.files (file_owner, file_path, file_name, file_query) VALUES (?, ?, ?, ?) ",
+		"INSERT INTO user_content_db.files (file_owner, file_path, file_name, file_query, file_available) VALUES (?, ?, ?, ?, ?) ",
 		u.FileOwner,
 		u.FilePath,
 		u.FileName,
 		u.FileQuery,
+		u.FileAvailable,
 	)
 	id, _ := result.LastInsertId()
 	u.ID = int(id)
+	return err
+}
+
+func (r *FileRepository) UpdateAvailableFile(filePath string, fileAvailable bool) error {
+	_, err := r.store.db.Exec(`UPDATE user_content_db.files
+									SET file_available = ?
+									WHERE file_path = ?`,
+		fileAvailable,
+		filePath)
+
 	return err
 }
 

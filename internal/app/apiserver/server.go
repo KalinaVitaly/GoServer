@@ -36,7 +36,40 @@ func (s *server) configureRouter() {
 	s.router.HandleFunc("/sessions", s.handleSessionsCreate()).Methods("POST")
 	s.router.HandleFunc("/create_group", s.handleCreateGroup()).Methods("POST")
 	s.router.HandleFunc("/delete_group", s.handleDeleteGroup()).Methods("POST")
-	s.router.HandleFunc("create_file", s.handleCreateFile()).Methods("POST")
+	s.router.HandleFunc("/create_file", s.handleCreateFile()).Methods("POST")
+	s.router.HandleFunc("/delete_file", s.handleDeleteFile()).Methods("POST")
+}
+
+func (s *server) handleDeleteFile() http.HandlerFunc {
+	type request struct {
+		UserID    int    `user_id`
+		FileQuery string `json:"file_query"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		if err := s.store.File().UpdateAvailableFile(req.FileQuery, false); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		if err := apifilesystem.DeleteFile(req.FileQuery); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		if err := s.store.File().Delete(req.FileQuery, req.UserID); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		s.respond(w, r, http.StatusOK, nil)
+	}
 }
 
 func (s *server) handleCreateFile() http.HandlerFunc {
