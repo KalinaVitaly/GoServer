@@ -26,3 +26,8 @@ type UserGroupRepository interface {
 	AddUserInGroup(int, int) error
 	DeleteUserFromGroup(int, int) error
 }
+
+type FileGroupRepository interface {
+	AddFileInGroup(int, int) error
+	DeleteFileFromGroup(int, int) error
+}

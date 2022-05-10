@@ -5,4 +5,5 @@ type Store interface {
 	Group() GroupRepository
 	File() FileRepository
 	UserInGroup() UserGroupRepository
+	FileInGroup() FileGroupRepository
 }

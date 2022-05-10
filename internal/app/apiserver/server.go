@@ -41,6 +41,80 @@ func (s *server) configureRouter() {
 	s.router.HandleFunc("/get_file", s.handleGetFile()).Methods("GET")
 	s.router.HandleFunc("/add_user_in_group", s.handleAddUserInGroup()).Methods("POST")
 	s.router.HandleFunc("/delete_user_from_group", s.handleDeleteUserFromGroup()).Methods("POST")
+	s.router.HandleFunc("/delete_file_from_group", s.handleDeleteFileFromGroup()).Methods("POST")
+	s.router.HandleFunc("/add_file_in_group", s.handleAddFileInGroup()).Methods("POST")
+}
+
+func (s *server) handleAddFileInGroup() http.HandlerFunc {
+	type request struct {
+		UserID    int    `json:"user_id"`
+		GroupName string `json:"group_name"`
+		FileQuery string `json:"file_query"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		groupModel, err := s.store.Group().FindGroupByName(req.GroupName)
+
+		if err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		fileModel, err := s.store.File().FindByQuery(req.FileQuery)
+
+		if err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		if err := s.store.FileInGroup().AddFileInGroup(fileModel.ID, groupModel.ID); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+		}
+
+		s.respond(w, r, http.StatusOK, nil)
+	}
+}
+
+func (s *server) handleDeleteFileFromGroup() http.HandlerFunc {
+	type request struct {
+		UserID    int    `json:"user_id"`
+		GroupName string `json:"group_name"`
+		FileQuery string `json:"file_query"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		groupModel, err := s.store.Group().FindGroupByName(req.GroupName)
+
+		if err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		fileModel, err := s.store.File().FindByQuery(req.FileQuery)
+
+		if err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		if err := s.store.FileInGroup().DeleteFileFromGroup(fileModel.ID, groupModel.ID); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+		}
+
+		s.respond(w, r, http.StatusOK, nil)
+	}
 }
 
 func (s *server) handleDeleteUserFromGroup() http.HandlerFunc {
