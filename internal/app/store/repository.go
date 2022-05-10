@@ -25,5 +25,4 @@ type FileRepository interface {
 type UserGroupRepository interface {
 	AddUserInGroup(int, int) error
 	DeleteUserFromGroup(int, int) error
-	FindGroupByName(string) (*model.Group, error)
 }
