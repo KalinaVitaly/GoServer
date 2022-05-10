@@ -9,4 +9,5 @@ var (
 	ErrReadFile                 = errors.New("error read file")
 	ErrIncorrectEmailOrPassword = errors.New("incorrect error or password")
 	ErrAccessRights             = errors.New("no access rights to delete the file")
+	ErrInputValues              = errors.New("input values incorrect")
 )

@@ -35,8 +35,8 @@ func (s *server) configureRouter() {
 	s.router.HandleFunc("/create_users", s.HandleUsersCreate()).Methods("POST")
 	s.router.HandleFunc("/delete_user", s.HandleDeleteUser()).Methods("POST")
 	s.router.HandleFunc("/sessions", s.handleSessionsCreate()).Methods("POST")
-	s.router.HandleFunc("/create_group", s.handleCreateGroup()).Methods("POST")
-	s.router.HandleFunc("/delete_group", s.handleDeleteGroup()).Methods("POST")
+	s.router.HandleFunc("/create_group", s.HandleCreateGroup()).Methods("POST")
+	s.router.HandleFunc("/delete_group", s.HandleDeleteGroup()).Methods("POST")
 	s.router.HandleFunc("/create_file", s.handleCreateFile()).Methods("POST")
 	s.router.HandleFunc("/delete_file", s.handleDeleteFile()).Methods("POST")
 	s.router.HandleFunc("/get_file", s.handleGetFile()).Methods("GET")
@@ -285,21 +285,21 @@ func (s *server) handleCreateFile() http.HandlerFunc {
 	}
 }
 
-func (s *server) handleDeleteGroup() http.HandlerFunc {
+func (s *server) HandleDeleteGroup() http.HandlerFunc {
 	type request struct {
-		UserID    int    `json:"user_id"`
+		UserID    int    `json:"group_owner"`
 		GroupName string `json:"group_name"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &request{}
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-			s.error(w, r, http.StatusUnprocessableEntity, err)
+			s.error(w, r, http.StatusBadRequest, err)
 			return
 		}
 
 		if err := s.store.Group().Delete(req.UserID, req.GroupName); err != nil {
-			s.error(w, r, http.StatusUnprocessableEntity, err)
+			s.error(w, r, http.StatusBadRequest, err)
 			return
 		}
 
@@ -334,7 +334,7 @@ func (s *server) HandleDeleteUser() http.HandlerFunc {
 	}
 }
 
-func (s *server) handleCreateGroup() http.HandlerFunc {
+func (s *server) HandleCreateGroup() http.HandlerFunc {
 	type request struct {
 		GroupOwner int    `json:"group_owner"`
 		GroupName  string `json:"group_name"`
@@ -343,7 +343,7 @@ func (s *server) handleCreateGroup() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &request{}
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
-			s.error(w, r, http.StatusUnprocessableEntity, err)
+			s.error(w, r, http.StatusBadRequest, err)
 			return
 		}
 
@@ -353,7 +353,7 @@ func (s *server) handleCreateGroup() http.HandlerFunc {
 		}
 
 		if err := s.store.Group().Create(gr); err != nil {
-			s.error(w, r, http.StatusUnprocessableEntity, err)
+			s.error(w, r, http.StatusBadRequest, err)
 			return
 		}
 

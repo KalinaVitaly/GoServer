@@ -52,8 +52,8 @@ func (s *Store) Group() store.GroupRepository {
 	}
 
 	s.groupRepository = &GroupRepository{
-		store: s,
-		files: make(map[int]*model.Group),
+		store:  s,
+		groups: make(map[int]*model.Group),
 	}
 
 	return s.groupRepository
