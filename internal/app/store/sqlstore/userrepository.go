@@ -54,6 +54,9 @@ func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 }
 
 func (r *UserRepository) Delete(user *model.User) error {
+	if err := user.BeforeCreate(); err != nil {
+		return err
+	}
 	if _, err := r.store.db.Exec(
 		"DELETE FROM user_content_db.users WHERE email = ? AND encrypted_password = ?;",
 		user.Email,

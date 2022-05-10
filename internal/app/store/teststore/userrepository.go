@@ -10,7 +10,6 @@ type UserRepository struct {
 	users map[int]*model.User
 }
 
-// Create ...
 func (r *UserRepository) Create(u *model.User) error {
 	if err := u.Validate(); err != nil {
 		return err
@@ -22,18 +21,7 @@ func (r *UserRepository) Create(u *model.User) error {
 
 	u.ID = len(r.users) + 1
 	r.users[u.ID] = u
-
 	return nil
-}
-
-// Find ...
-func (r *UserRepository) Find(id int) (*model.User, error) {
-	u, ok := r.users[id]
-	if !ok {
-		return nil, store.ErrRecordNotFound
-	}
-
-	return u, nil
 }
 
 // FindByEmail ...
@@ -45,4 +33,23 @@ func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 	}
 
 	return nil, store.ErrRecordNotFound
+}
+
+func (r *UserRepository) Delete(user *model.User) error {
+	userModel, err := r.FindByEmail(user.Email)
+
+	if err != nil {
+		return store.ErrRecordNotFound
+	}
+
+	if err := user.BeforeCreate(); err != nil {
+		return err
+	}
+
+	if _, isOk := r.users[userModel.ID]; isOk {
+		delete(r.users, userModel.ID)
+		return nil
+	}
+
+	return store.ErrRecordNotFound
 }

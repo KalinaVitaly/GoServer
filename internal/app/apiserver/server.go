@@ -27,12 +27,13 @@ func newServer(store store.Store, configFileSystem *apifilesystem.ConfigDirector
 	return s
 }
 
-func (s *server) serverHTTP(w http.ResponseWriter, r *http.Request) {
+func (s *server) ServerHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
 }
 
 func (s *server) configureRouter() {
-	s.router.HandleFunc("/create_users", s.handleUsersCreate()).Methods("POST")
+	s.router.HandleFunc("/create_users", s.HandleUsersCreate()).Methods("POST")
+	s.router.HandleFunc("/delete_user", s.HandleDeleteUser()).Methods("POST")
 	s.router.HandleFunc("/sessions", s.handleSessionsCreate()).Methods("POST")
 	s.router.HandleFunc("/create_group", s.handleCreateGroup()).Methods("POST")
 	s.router.HandleFunc("/delete_group", s.handleDeleteGroup()).Methods("POST")
@@ -306,6 +307,33 @@ func (s *server) handleDeleteGroup() http.HandlerFunc {
 	}
 }
 
+func (s *server) HandleDeleteUser() http.HandlerFunc {
+	type request struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		u := &model.User{
+			Email:    req.Email,
+			Password: req.Password,
+		}
+
+		if err := s.store.User().Delete(u); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		s.respond(w, r, http.StatusOK, nil)
+	}
+}
+
 func (s *server) handleCreateGroup() http.HandlerFunc {
 	type request struct {
 		GroupOwner int    `json:"group_owner"`
@@ -333,7 +361,7 @@ func (s *server) handleCreateGroup() http.HandlerFunc {
 	}
 }
 
-func (s *server) handleUsersCreate() http.HandlerFunc {
+func (s *server) HandleUsersCreate() http.HandlerFunc {
 	type request struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
